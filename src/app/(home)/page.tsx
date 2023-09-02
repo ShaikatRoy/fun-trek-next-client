@@ -1,9 +1,10 @@
 import Image from 'next/image'
+import Banner from './Banner';
 
 const HomePage = () => {
   return (
     <main className="">
-        <h2>Home</h2>
+        <Banner></Banner>
     </main>
   )
 }
