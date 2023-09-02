@@ -1,7 +1,11 @@
-import firebase from "./firebase.config";
-import "firebase/compat/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import app from "./firebase.config";
 
-const auth = firebase.auth();
-export const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+
+const auth = getAuth(app);
+
+export const googleProvider = new GoogleAuthProvider();
 
 export default auth;
+

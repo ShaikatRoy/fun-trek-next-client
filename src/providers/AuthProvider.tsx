@@ -1,9 +1,32 @@
 import React, { useEffect, useState, ReactNode } from "react";
-import { User, signInWithPopup, signOut } from "firebase/auth";
-import AuthContext from "@/contexts/AuthContext";
-import auth, { googleProvider } from "@/firebase/firebase.auth";
 
-// Define the expected context type
+import firebase from "@/firebase/firebase.config";
+import "firebase/compat/auth";
+import AuthContext from "@/contexts/AuthContext";
+
+type UserInfo = {
+  displayName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  photoURL: string | null;
+  providerId: string;
+  uid: string;
+};
+
+type User = Partial<{
+  displayName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  photoURL: string | null;
+  providerId: string;
+  uid: string;
+  providerData: UserInfo[];
+  emailVerified: boolean;
+  isAnonymous: boolean;
+  metadata: firebase.auth.UserMetadata;
+  refreshToken: string;
+}>;
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -11,22 +34,33 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-// Define the AuthProvider component
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Function for Google Sign-In
   const googleLogin = async () => {
     setLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      setUser(user);
+      const result = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      if (result.user) {
+        const { displayName, email, phoneNumber, photoURL, providerId, uid, providerData } = result.user;
+        setUser({
+          displayName,
+          email,
+          phoneNumber,
+          photoURL,
+          providerId,
+          uid,
+          providerData: providerData.map(data => ({
+            displayName: data?.displayName || null,
+            email: data?.email || null,
+            phoneNumber: data?.phoneNumber || null,
+            photoURL: data?.photoURL || null,
+            providerId: data?.providerId || "",
+            uid: data?.uid || ""
+          }))
+        });
+      }
     } catch (error) {
       console.error("Google Sign-In Error:", error);
     } finally {
@@ -34,11 +68,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Function for Sign-Out
   const logout = async () => {
     setLoading(true);
     try {
-      await signOut(auth);
+      await firebase.auth().signOut();
       setUser(null);
     } catch (error) {
       console.error("Sign-Out Error:", error);
@@ -47,10 +80,29 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Listen for authentication state changes
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
+      if (firebaseUser) {
+        const { displayName, email, phoneNumber, photoURL, providerId, uid, providerData } = firebaseUser;
+        setUser({
+          displayName,
+          email,
+          phoneNumber,
+          photoURL,
+          providerId,
+          uid,
+          providerData: providerData.map(data => ({
+            displayName: data?.displayName || null,
+            email: data?.email || null,
+            phoneNumber: data?.phoneNumber || null,
+            photoURL: data?.photoURL || null,
+            providerId: data?.providerId || "",
+            uid: data?.uid || ""
+          }))
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -59,16 +111,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  // Create the context value
-  const value: AuthContextType = {
-    user,
-    loading,
-    googleLogin,
-    logout,
-  };
-
-  // Provide the context value to the children
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, loading, googleLogin, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;
