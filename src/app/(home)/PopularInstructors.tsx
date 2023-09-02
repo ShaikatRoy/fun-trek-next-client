@@ -1,15 +1,35 @@
+"use client";
+
 import Link from "next/link";
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { db } from '@/firebase/firebase.config';
+
+type Instructor = {
+  id: string;
+  name: string;
+  image: string;
+};
 
 const PopularInstructors: React.FC = () => {
-  const instructors = [
-    { id: 1, name: "John Doe", image: "https://i.ibb.co/2hvDJ01/linkedin-sales-solutions-p-At-A8xe-i-VM-unsplash.jpg" },
-    { id: 2, name: "Jane Smith", image: "https://i.ibb.co/2hvDJ01/linkedin-sales-solutions-p-At-A8xe-i-VM-unsplash.jpg" },
-    { id: 3, name: "Alice Johnson", image: "https://i.ibb.co/2hvDJ01/linkedin-sales-solutions-p-At-A8xe-i-VM-unsplash.jpg" },
-    { id: 4, name: "Bob Brown", image: "https://i.ibb.co/2hvDJ01/linkedin-sales-solutions-p-At-A8xe-i-VM-unsplash.jpg" },
-    { id: 5, name: "Charlie Davis", image: "https://i.ibb.co/2hvDJ01/linkedin-sales-solutions-p-At-A8xe-i-VM-unsplash.jpg" },
-    { id: 6, name: "Diana Evans", image: "https://i.ibb.co/2hvDJ01/linkedin-sales-solutions-p-At-A8xe-i-VM-unsplash.jpg" },
-  ];
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await db.collection("Funtrek").get();
+      const fetchedData: Instructor[] = querySnapshot.docs.map(doc => ({
+        id: doc.id, 
+        name: doc.data().Name, 
+        image: doc.data().Image
+      }));
+      setInstructors(fetchedData);
+      console.log(fetchedData);
+
+    };
+
+    fetchData();
+  }, []);
+
 
   return (
     <section className="py-10">

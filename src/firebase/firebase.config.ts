@@ -1,7 +1,5 @@
-import { initializeApp } from "firebase/app";
-import "@firebase/firestore";
-import "firebase/auth";
 import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_apiKey,
@@ -10,9 +8,13 @@ const firebaseConfig = {
     storageBucket: process.env.NEXT_storageBucket,
     messagingSenderId: process.env.NEXT_messagingSenderId,
     appId: process.env.NEXT_appId,
-  };
+};
 
-  
-  const app = initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-  export default app;
+const db = firebase.firestore();
+
+export { db };
+export default firebase;
