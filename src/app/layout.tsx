@@ -1,8 +1,13 @@
+import classNames from '@/utils/classNames';
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Roboto } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'] })
+const roboto = Roboto({ 
+  weight: ["100", "300", "400", "500", "700", "900"],
+  subsets: ['latin'],
+  variable: "--font-roboto"
+});
 
 export const metadata: Metadata = {
   title: 'Fun Trek Next',
@@ -11,8 +16,11 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" data-theme="dark" className="transition-all">
+      <body className={classNames(
+        roboto.variable,
+        "container mx-auto px-2 font-roboto"
+      )}>
         {children}
       </body>
     </html>
