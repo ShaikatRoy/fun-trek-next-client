@@ -2,6 +2,8 @@ import classNames from '@/utils/classNames';
 import './globals.css'
 import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const roboto = Roboto({ 
   weight: ["100", "300", "400", "500", "700", "900"],
@@ -16,12 +18,19 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en" data-theme="dark" className="transition-all">
+    <html lang="en" data-theme="light" className="transition-all">
       <body className={classNames(
         roboto.variable,
         "container mx-auto px-2 font-roboto"
       )}>
-        {children}
+        <div className="flex min-h-screen flex-col justify-between">
+          <div>
+            <Navbar></Navbar>
+            <main className='mt-5'>{children}</main>
+          </div>
+          <Footer></Footer>
+        </div>
+        
       </body>
     </html>
   )
